@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego de Matemáticas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #56ccf2, #2f80ed);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .game-container {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        #level {
+            color: #2f80ed;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        #problem {
+            font-size: 2rem;
+            margin: 15px 0;
+        }
+
+        .option-button {
+            width: 80%;
+            max-width: 280px;
+            padding: 15px;
+            margin: 8px 0;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 10px;
+            background-color: #2f80ed;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-button:hover {
+            background-color: #1c5dd9;
+        }
+
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .animate {
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Juego de Matemáticas 🎲</h1>
+        <h2 id="level">Nivel 1 (Fácil)</h2>
+        <div id="problem">0 + 0 = ?</div>
+        <button class="option-button" id="btnA" onclick="checkOption('A')">A</button>
+        <button class="option-button" id="btnB" onclick="checkOption('B')">B</button>
+        <button class="option-button" id="btnC" onclick="checkOption('C')">C</button>
+        <div class="result" id="message"></div>
+    </div>
+
+    <audio id="correct-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+    <audio id="wrong-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+    <script>
+        let level = 1;
+        let num1, num2, operator, solution;
+        let options = [];
+
+        function generateProblem() {
+            let max = 10 + level * 20;
+            num1 = Math.floor(Math.random() * max);
+            num2 = Math.floor(Math.random() * max);
+            operator = ['+', '-', '*'][Math.floor(Math.random() * 3)];
+
+            if (operator === '+') solution = num1 + num2;
+            else if (operator === '-') solution = num1 - num2;
+            else solution = num1 * num2;
+
+            document.getElementById('problem').innerText = `${num1} ${operator} ${num2} = ?`;
+            generateOptions();
+        }
+
+        function generateOptions() {
+            options = [solution];
+            while (options.length < 3) {
+                let wrong = solution + Math.floor(Math.random() * 10) - 5;
+                if (!options.includes(wrong)) options.push(wrong);
+            }
+            options = options.sort(() => Math.random() - 0.5);
+            document.getElementById('btnA').innerText = `A) ${options[0]}`;
+            document.getElementById('btnB').innerText = `B) ${options[1]}`;
+            document.getElementById('btnC').innerText = `C) ${options[2]}`;
+        }
+
+        function checkOption(letter) {
+            let selectedValue;
+            if (letter === 'A') selectedValue = options[0];
+            if (letter === 'B') selectedValue = options[1];
+            if (letter === 'C') selectedValue = options[2];
+
+            const correctSound = document.getElementById('correct-sound');
+            const wrongSound = document.getElementById('wrong-sound');
+            const message = document.getElementById('message');
+
+            if (selectedValue === solution) {
+                correctSound.play();
+                level++;
+                const difficulty = level < 3 ? 'Fácil' : level < 5 ? 'Medio' : 'Difícil';
+                document.getElementById('level').innerText = `Nivel ${level} (${difficulty})`;
+                message.innerText = '✅ ¡Correcto!';
+                message.style.color = '#2a9d8f';
+                message.classList.add('animate');
+                setTimeout(() => message.classList.remove('animate'), 500);
+                if (level % 5 === 0) {
+                    alert('🎉 ¡GANASTE este ciclo de niveles!');
+                }
+                generateProblem();
+            } else {
+                wrongSound.play();
+                message.innerText = '❌ Incorrecto. Intenta de nuevo.';
+                message.style.color = 'r
